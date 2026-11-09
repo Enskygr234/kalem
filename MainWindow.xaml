@@ -1,0 +1,146 @@
+<Window x:Class="Kalem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kalem" Width="560" Height="660"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        ShowInTaskbar="False" Topmost="True" Icon="app.ico"
+        Foreground="{StaticResource FgBrush}" FontFamily="{StaticResource UiFont}" FontSize="13.5"
+        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True">
+
+  <Grid Margin="16">
+    <Border CornerRadius="16" Background="{StaticResource BgBrush}">
+      <Border.Effect><DropShadowEffect BlurRadius="30" ShadowDepth="8" Direction="270" Opacity="0.55" Color="#000000"/></Border.Effect>
+    </Border>
+    <Border CornerRadius="16" Background="{StaticResource BgBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+      <Grid>
+        <!-- ================= MAIN VIEW ================= -->
+        <Grid x:Name="MainView" Margin="18,14,18,16">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <!-- header -->
+          <Grid Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Path Data="{StaticResource IcoSpark}" Fill="{StaticResource SparkBrush}" Width="18" Height="18" Stretch="Uniform"/>
+              <TextBlock Text="Kalem" FontSize="16" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
+              <Border Background="{StaticResource AccentSoftBrush}" CornerRadius="9" Padding="8,1" Margin="10,1,0,0" VerticalAlignment="Center">
+                <TextBlock x:Name="ModelTag" Foreground="{StaticResource AccentBrush}" FontSize="11.5"/>
+              </Border>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button Style="{StaticResource IconBtn}" Click="OpenSettings_Click" ToolTip="Ayarlar">
+                <Path Data="{StaticResource IcoGear}" Style="{StaticResource IconPath}"/>
+              </Button>
+              <Button Style="{StaticResource IconBtn}" Click="Close_Click" ToolTip="Kapat (Esc)">
+                <Path Data="{StaticResource IcoX}" Style="{StaticResource IconPath}" Width="12" Height="12"/>
+              </Button>
+            </StackPanel>
+          </Grid>
+
+          <!-- source -->
+          <StackPanel Grid.Row="1">
+            <Grid Margin="2,0,2,6">
+              <TextBlock x:Name="SourceLabel" Text="SEÇİLİ METİN" Foreground="{StaticResource MutedBrush}" FontSize="11" FontWeight="SemiBold"/>
+              <TextBlock x:Name="SourceCount" Foreground="{StaticResource MutedBrush}" FontSize="11" HorizontalAlignment="Right"/>
+            </Grid>
+            <TextBox x:Name="Source" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="118" MinHeight="40"
+                     VerticalScrollBarVisibility="Auto" TextChanged="Source_TextChanged"
+                     Tag="Metin seçmeden açtın. Buraya bir metin yapıştır ya da aşağıya doğrudan sorunu yaz."/>
+          </StackPanel>
+
+          <!-- actions -->
+          <WrapPanel x:Name="Actions" Grid.Row="2" Margin="0,12,0,4"/>
+
+          <!-- instruction -->
+          <TextBox x:Name="Instruction" Grid.Row="3" Margin="0,4,0,12" Tag="Kendi talimatını yaz ve Enter'a bas… (ör. madde madde yaz, daha esprili yap)"
+                   KeyDown="Instruction_KeyDown"/>
+
+          <!-- result -->
+          <Border Grid.Row="4" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="10">
+            <Grid>
+              <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+              <Grid Margin="14,10,12,4">
+                <TextBlock Text="SONUÇ" Foreground="{StaticResource MutedBrush}" FontSize="11" FontWeight="SemiBold"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                  <Path x:Name="BusySpark" Data="{StaticResource IcoSpark}" Fill="{StaticResource SparkBrush}" Width="11" Height="11" Stretch="Uniform"
+                        Margin="0,0,6,0" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                    <Path.RenderTransform><RotateTransform x:Name="SparkRot"/></Path.RenderTransform>
+                  </Path>
+                  <TextBlock x:Name="Status" Foreground="{StaticResource MutedBrush}" FontSize="11.5"/>
+                </StackPanel>
+              </Grid>
+              <TextBox x:Name="Result" Grid.Row="1" IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0" Background="Transparent"
+                       VerticalScrollBarVisibility="Auto" Padding="10,2,10,10" FontSize="14"
+                       Tag="Yukarıdan bir işlem seç (Ctrl+1–9) ya da kendi talimatını yaz."/>
+              <TextBlock x:Name="ErrorTxt" Grid.Row="1" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" Margin="14,4,14,10" Visibility="Collapsed"/>
+            </Grid>
+          </Border>
+
+          <!-- footer -->
+          <Grid Grid.Row="5" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <TextBlock x:Name="Hint" Foreground="{StaticResource MutedBrush}" FontSize="11.5" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button x:Name="RetryBtn" Style="{StaticResource IconBtn}" Click="Retry_Click" ToolTip="Tekrar üret (Ctrl+R)" IsEnabled="False">
+                <Path Data="{StaticResource IcoRetry}" Style="{StaticResource IconPath}"/>
+              </Button>
+              <Button x:Name="CopyBtn" Click="Copy_Click" Margin="6,0,0,0" IsEnabled="False" ToolTip="Sonucu panoya kopyala (Ctrl+Shift+C)">
+                <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcoCopy}" Style="{StaticResource IconPath}" Width="13" Height="13"/><TextBlock Text="Kopyala" Margin="7,0,0,0"/></StackPanel>
+              </Button>
+              <Button x:Name="ApplyBtn" Style="{StaticResource PrimaryBtn}" Click="Apply_Click" Margin="8,0,0,0" IsEnabled="False" ToolTip="Ctrl+Enter">
+                <TextBlock x:Name="ApplyTxt" Text="Değiştir"/>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Grid>
+
+        <!-- ================= SETTINGS VIEW ================= -->
+        <Grid x:Name="SettingsView" Margin="22,16,22,20" Visibility="Collapsed">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+          <StackPanel Orientation="Horizontal">
+            <Button x:Name="SettingsBack" Style="{StaticResource IconBtn}" Click="CloseSettings_Click" ToolTip="Geri (Esc)">
+              <Path Data="{StaticResource IcoBack}" Style="{StaticResource IconPath}" Width="12" Height="12"/>
+            </Button>
+            <TextBlock Text="Ayarlar" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" Margin="6,0,0,0"/>
+          </StackPanel>
+
+          <StackPanel Grid.Row="1" Margin="0,18,0,0">
+            <TextBlock x:Name="Welcome" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,16" LineHeight="20" Visibility="Collapsed"
+                       Text="Kalem, Google'ın Gemini modelini kullanır. Başlamak için ücretsiz bir Gemini API anahtarı al ve aşağıya yapıştır. Anahtarın yalnızca bu bilgisayarda, Windows'un şifrelemesiyle saklanır."/>
+
+            <TextBlock Text="Gemini API anahtarı" FontWeight="SemiBold"/>
+            <Grid Margin="0,8,0,0">
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <PasswordBox x:Name="KeyBox" Height="38" Padding="10,0" VerticalContentAlignment="Center"/>
+              <Button Grid.Column="1" Margin="8,0,0,0" Height="38" Click="GetKey_Click" ToolTip="aistudio.google.com/apikey">Anahtar al ↗</Button>
+            </Grid>
+            <TextBlock x:Name="KeyNote" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"/>
+
+            <TextBlock Text="Model" FontWeight="SemiBold" Margin="0,20,0,0"/>
+            <Grid Margin="0,8,0,0">
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBox x:Name="ModelBox" Height="38" Padding="10,0" VerticalContentAlignment="Center"/>
+              <Button Grid.Column="1" Margin="8,0,0,0" Height="38" Click="FindModel_Click" ToolTip="Anahtarının erişebildiği en yeni Flash-Lite modelini seç">En yeniyi bul</Button>
+            </Grid>
+            <TextBlock Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"
+                       Text="Varsayılan: gemini-3.5-flash-lite — hızlı ve ucuz. İstersen başka bir Gemini modelinin adını yazabilirsin."/>
+
+            <Border x:Name="TestBox" Margin="0,20,0,0" CornerRadius="9" Padding="12,10" Background="{StaticResource SurfaceBrush}" Visibility="Collapsed">
+              <TextBlock x:Name="TestTxt" TextWrapping="Wrap"/>
+            </Border>
+
+            <TextBlock Text="Kısayol" FontWeight="SemiBold" Margin="0,20,0,0"/>
+            <TextBlock x:Name="HotkeyInfo" Foreground="{StaticResource MutedBrush}" Margin="0,6,0,0" TextWrapping="Wrap" LineHeight="20"/>
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Click="TestKey_Click" x:Name="TestBtn">Bağlantıyı dene</Button>
+            <Button Style="{StaticResource PrimaryBtn}" Click="SaveSettings_Click" Margin="8,0,0,0" Padding="18,0">Kaydet</Button>
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
